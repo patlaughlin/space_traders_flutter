@@ -66,8 +66,8 @@ void main() {
 
       expect(
         () => agentRepository.registerNewAgent('user_call_sign', 'COSMIC'),
-        throwsA(isA<Exception>().having(
-            (e) => e.toString(), 'message', contains('Registration failed'))),
+        throwsA(isA<Exception>().having((e) => e.toString(), 'message',
+            contains('Failed to register agent'))),
       );
     });
 
