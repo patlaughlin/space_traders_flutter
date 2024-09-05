@@ -1,0 +1,24 @@
+import 'package:equatable/equatable.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:space_traders/service_locator.dart';
+
+import '../../../agent_repository.dart';
+
+part 'auth_event.dart';
+part 'auth_state.dart';
+
+class AuthBloc extends Bloc<AuthEvent, AuthState> {
+  late final AgentRepository _authRepository;
+
+  AuthBloc() : super(AuthInitial()) {
+    _authRepository = getIt.get<AgentRepository>();
+
+    on<AuthRegisterUserEvent>(_registerUser);
+  }
+
+  void _registerUser(AuthRegisterUserEvent event, Emitter<AuthState> emit) {
+    _authRepository.registerNewAgent(event.callSign).then((userJwt) {
+      emit(AuthUserRetrieved(userJwt));
+    });
+  }
+}
