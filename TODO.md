@@ -1,0 +1,4 @@
+- [] retrieve single agent
+- [] retrieve all agents
+- [] create http service
+    - should bake in the jwt if its available

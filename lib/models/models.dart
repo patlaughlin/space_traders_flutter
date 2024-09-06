@@ -42,7 +42,9 @@ class Agent {
     required this.shipCount,
   });
 
-  factory Agent.fromJson(Map<String, dynamic> json) => _$AgentFromJson(json);
+  factory Agent.fromJson(Map<String, dynamic> json) {
+    return _$AgentFromJson(json);
+  }
 
   Map<String, dynamic> toJson() => _$AgentToJson(this);
 }
