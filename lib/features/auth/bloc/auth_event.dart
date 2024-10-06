@@ -12,5 +12,3 @@ class AuthRegisterUserEvent extends AuthEvent {
 
   const AuthRegisterUserEvent(this.callSign);
 }
-
-class AuthLoadingEvent extends AuthEvent {}

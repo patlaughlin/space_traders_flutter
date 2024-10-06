@@ -5,19 +5,20 @@ import 'package:space_traders/agent_repository.dart';
 import 'package:space_traders/features/auth/bloc/auth_bloc.dart';
 import 'package:space_traders/service_locator.dart';
 
-class MockAuthRepository extends Mock implements AgentRepository {}
+import '../../../mocks/mock_agent.dart';
+
+class MockAgentRepository extends Mock implements AgentRepository {}
 
 void main() {
   group('AuthBloc', () {
     late AuthBloc authBloc;
-    late MockAuthRepository mockAuthRepository;
+    late MockAgentRepository mockAgentRepository;
 
     setUp(() {
-      mockAuthRepository = MockAuthRepository();
-      if (getIt.isRegistered<AgentRepository>()) {
-        getIt.unregister<AgentRepository>();
-      }
-      getIt.registerLazySingleton<AgentRepository>(() => MockAuthRepository());
+      mockAgentRepository = MockAgentRepository();
+      getIt.reset();
+      getIt.registerLazySingleton<AgentRepository>(() => mockAgentRepository);
+
       authBloc = AuthBloc();
     });
 
@@ -26,18 +27,30 @@ void main() {
     });
 
     test('initial state is AuthInitial', () {
-      expect(authBloc.state, AuthInitial());
+      expect(authBloc.state, const AuthInitial(null));
     });
 
     blocTest<AuthBloc, AuthState>(
       'emits [AuthLoading, AuthUserRetrieved] when AuthRegisterUserEvent is added and succeeds',
-      build: () {
-        when(() => mockAuthRepository.registerNewAgent(any()))
-            .thenAnswer((_) async => 'user_jwt');
-        return authBloc;
-      },
+      setUp: () =>
+          when(() => mockAgentRepository.registerNewAgent(any(), any()))
+              .thenAnswer((_) async => mockAgent),
+      build: () => authBloc,
       act: (bloc) => bloc.add(const AuthRegisterUserEvent('user_call_sign')),
-      expect: () => [AuthLoadingEvent(), const AuthUserRetrieved('user_jwt')],
+      expect: () => [const AuthLoading(), AuthUserRetrieved(mockAgent)],
+    );
+
+    blocTest<AuthBloc, AuthState>(
+      'emits [AuthLoading, AuthFailure] when AuthRegisterUserEvent is added and fails',
+      setUp: () {
+        when(() {
+          return mockAgentRepository.registerNewAgent(any(), any());
+        }).thenThrow(Exception('Failed to register user'));
+      },
+      build: () => authBloc,
+      act: (bloc) => bloc.add(const AuthRegisterUserEvent('username')),
+      expect: () =>
+          [const AuthLoading(), const AuthFailure('Failed to register user')],
     );
     //
     //   blocTest<AuthBloc, AuthState>(

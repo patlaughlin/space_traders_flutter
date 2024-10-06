@@ -4,11 +4,14 @@ import 'package:space_traders/http_service.dart';
 
 import 'agent_repository.dart';
 
+import 'package:http/http.dart' as http;
+
 final getIt = GetIt.instance;
 
 void setupLocator() async {
-  getIt.registerLazySingleton(() => AgentRepository());
-  var sharedPreferences = await SharedPreferences.getInstance();
+  final sharedPreferences = await SharedPreferences.getInstance();
+  final client = http.Client();
+  getIt.registerLazySingleton(() => AgentRepository(client: client, sharedPreferences: sharedPreferences));
   getIt.registerLazySingleton(
-      () => HttpService(sharedPreferences: sharedPreferences));
+      () => HttpService(sharedPreferences: sharedPreferences, client: client));
 }
